@@ -1,0 +1,28 @@
+# Secrets and credentials — never commit
+*secret*.yaml
+*secret*.yml
+!*sealed-secret*.yaml
+*.key
+*.pem
+*.crt
+*.csr
+*.p12
+*.pfx
+*.jks
+*.token
+.env
+.env.*
+kubeconfig
+*.kubeconfig
+k3s.yaml
+
+# Helm / Kustomize build output
+charts/*.tgz
+*.rendered.yaml
+
+# Editor / OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*~

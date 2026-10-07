@@ -1,0 +1,25 @@
+# Shared public Gateway (infrastructure/gateway).
+# traefik-config.yaml is excluded by that directory's kustomization and stays
+# a manual, one-time step: it modifies the K3s-managed Traefik.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: gateway
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "0"
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/enesbuyuk/k3s-gitops.git
+    targetRevision: main
+    path: infrastructure/gateway
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gateway-system
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

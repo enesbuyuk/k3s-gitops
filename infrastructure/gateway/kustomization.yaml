@@ -1,0 +1,9 @@
+# Applied with: kubectl apply -k infrastructure/gateway
+#
+# traefik-config.yaml is intentionally NOT listed here. It modifies the
+# K3s-managed Traefik and is applied separately (see README).
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - namespace.yaml
+  - gateway.yaml

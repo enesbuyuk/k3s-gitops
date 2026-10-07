@@ -1,0 +1,27 @@
+# "App of apps" root Application.
+#
+# Applied manually ONCE after Argo CD is installed:
+#   kubectl apply -f bootstrap/root.yaml
+#
+# It watches bootstrap/applications/ and creates every Application found
+# there. To add a new app to the cluster, add a file to that directory.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: root
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/enesbuyuk/k3s-gitops.git
+    targetRevision: main
+    path: bootstrap/applications
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true

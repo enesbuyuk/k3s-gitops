@@ -1,0 +1,74 @@
+# Shared public Gateway used by every application in the cluster.
+#
+# Applications do NOT create their own Gateway. They create an HTTPRoute in
+# their own namespace and reference this Gateway via parentRefs:
+#
+#   parentRefs:
+#     - name: public-gateway
+#       namespace: gateway-system
+#       sectionName: http
+#
+# IMPORTANT (Traefik specific): listener ports must match Traefik entryPoint
+# ports, NOT the external ports. K3s ServiceLB maps:
+#   external 80  -> Traefik entryPoint "web"       (container port 8000)
+#   external 443 -> Traefik entryPoint "websecure" (container port 8443)
+apiVersion: gateway.networking.k8s.io/v1
+kind: Gateway
+metadata:
+  name: public-gateway
+  namespace: gateway-system
+  labels:
+    app.kubernetes.io/name: public-gateway
+    app.kubernetes.io/part-of: gateway
+spec:
+  gatewayClassName: traefik
+  listeners:
+    # ------------------------------------------------------------------
+    # HTTP listener (active)
+    # No hostname set: the listener accepts any host, and each HTTPRoute
+    # declares the hostnames it serves.
+    # ------------------------------------------------------------------
+    - name: http
+      protocol: HTTP
+      port: 8000
+      allowedRoutes:
+        kinds:
+          - kind: HTTPRoute
+        namespaces:
+          # Allow HTTPRoutes from any namespace to attach.
+          #
+          # To restrict attachment to explicitly opted-in namespaces, replace
+          # with a selector and label each app namespace, e.g.:
+          #
+          #   from: Selector
+          #   selector:
+          #     matchLabels:
+          #       gateway-access: public
+          #
+          #   kubectl label namespace <ns> gateway-access=public
+          from: All
+
+    # ------------------------------------------------------------------
+    # HTTPS listener (disabled until cert-manager is set up)
+    #
+    # Steps to enable later:
+    #   1. Install cert-manager (infrastructure/cert-manager/).
+    #   2. Issue a Certificate whose Secret lives in gateway-system
+    #      (e.g. wildcard-example-com-tls). Never commit the Secret to Git.
+    #   3. Uncomment this listener and re-apply.
+    #   4. Optionally add an HTTP -> HTTPS redirect HTTPRoute on "http".
+    # ------------------------------------------------------------------
+    # - name: https
+    #   protocol: HTTPS
+    #   port: 8443
+    #   hostname: "*.example.com"
+    #   tls:
+    #     mode: Terminate
+    #     certificateRefs:
+    #       - kind: Secret
+    #         name: wildcard-example-com-tls
+    #   allowedRoutes:
+    #     kinds:
+    #       - kind: HTTPRoute
+    #     namespaces:
+    #       from: All

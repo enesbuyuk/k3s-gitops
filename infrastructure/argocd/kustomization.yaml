@@ -1,0 +1,18 @@
+# Argo CD installation (upstream manifests, pinned version).
+#
+# First install (manual, once):
+#   kubectl apply -k infrastructure/argocd --server-side --force-conflicts
+#
+# Afterwards Argo CD manages itself via bootstrap/applications/argocd.yaml.
+#
+# To upgrade: bump the version in the URL below, commit, push.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+namespace: argocd
+resources:
+  - namespace.yaml
+  - https://raw.githubusercontent.com/argoproj/argo-cd/v3.5.4/manifests/install.yaml
+  # Uncomment once HTTPS is enabled on public-gateway (see README):
+  # - httproute.yaml
+patches:
+  - path: argocd-cmd-params-cm.yaml

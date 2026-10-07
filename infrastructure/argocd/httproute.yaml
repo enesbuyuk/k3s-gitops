@@ -1,0 +1,28 @@
+# Exposes the Argo CD UI through the shared Gateway.
+#
+# NOT enabled by default (not listed in kustomization.yaml): the Gateway only
+# has an HTTP listener today, and the Argo CD login must not travel over plain
+# HTTP on the public internet. Until HTTPS is ready, use:
+#   kubectl port-forward -n argocd svc/argocd-server 8080:80
+#
+# >>> Replace argocd.example.com with your real domain. <<<
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: argocd-server
+  namespace: argocd
+spec:
+  parentRefs:
+    - name: public-gateway
+      namespace: gateway-system
+      sectionName: https
+  hostnames:
+    - argocd.example.com
+  rules:
+    - matches:
+        - path:
+            type: PathPrefix
+            value: /
+      backendRefs:
+        - name: argocd-server
+          port: 80

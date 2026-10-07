@@ -1,0 +1,9 @@
+# Run argocd-server without its own TLS. TLS is terminated by Traefik at
+# public-gateway (once the HTTPS listener is enabled), which then forwards
+# plain HTTP to argocd-server:80 inside the cluster.
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: argocd-cmd-params-cm
+data:
+  server.insecure: "true"

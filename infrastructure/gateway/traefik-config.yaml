@@ -1,0 +1,25 @@
+# K3s HelmChartConfig for the Traefik instance bundled and managed by K3s.
+#
+# This does NOT install a new Traefik. It overrides values of the existing
+# K3s-managed "traefik" HelmChart in kube-system, and K3s re-renders the
+# chart with these values.
+#
+# NOTE: a HelmChartConfig replaces the whole valuesContent. If your cluster
+# already has a HelmChartConfig named "traefik" with other settings, merge
+# them into this file before applying:
+#
+#   kubectl get helmchartconfig traefik -n kube-system -o yaml
+#
+# NOTE: if a copy of this file also exists in
+# /var/lib/rancher/k3s/server/manifests/ on the node, K3s re-applies that
+# copy on restart. Keep only one source of truth.
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    providers:
+      kubernetesGateway:
+        enabled: true

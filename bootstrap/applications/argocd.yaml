@@ -1,0 +1,24 @@
+# Argo CD manages its own installation (infrastructure/argocd).
+# prune is disabled on purpose: a bad commit must never delete Argo CD itself.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: argocd
+  namespace: argocd
+  annotations:
+    argocd.argoproj.io/sync-wave: "-10"
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/enesbuyuk/k3s-gitops.git
+    targetRevision: main
+    path: infrastructure/argocd
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: argocd
+  syncPolicy:
+    automated:
+      prune: false
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true
